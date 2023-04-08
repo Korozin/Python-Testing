@@ -1,4 +1,30 @@
+import sys
 from PIL import Image
+
+## Set up graceful script exiting ##
+def exit_gracefully(signum=None, frame=None):
+    print("\n\nExited")
+    sys.exit(0)
+
+
+try:
+    # Try to use signal.SIGINT on Unix-based systems
+    import signal
+
+    signal.signal(signal.SIGINT, exit_gracefully)
+except (ImportError, AttributeError):
+    try:
+        # Try to use ctypes.windll.kernel32 on Windows
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32
+
+        # Enable Ctrl+C handling
+        kernel32.SetConsoleCtrlHandler(exit_gracefully, 1)
+    except:
+        print("Failed to set up signal handling. Graceful exit upon CTRL+C not supported")
+## Set up graceful script exiting ##
+
 
 def conv_2_grayscale(image_path):
     """
@@ -6,6 +32,7 @@ def conv_2_grayscale(image_path):
     """
     img = Image.open(image_path).convert('L')
     return img
+
 
 def validate_hex_code(hex_code):
     """
@@ -27,11 +54,13 @@ def validate_hex_code(hex_code):
     
     return hex_code
 
+
 def hex_to_rgb(hex_code):
     """
     Convert the hex code to RGB values
     """
     return tuple(int(hex_code[i:i+2], 16) for i in (0, 2, 4))
+
 
 def get_hex_code():
     """
@@ -41,6 +70,7 @@ def get_hex_code():
     hex_code = validate_hex_code(hex_code)
     rgb_code = hex_to_rgb(hex_code)
     return rgb_code
+
 
 def recolor_pixels(img, rgb_code):
     """
@@ -63,6 +93,7 @@ def recolor_pixels(img, rgb_code):
 
     return new_img
 
+
 def save_image(image, image_name):
     """
     Save the new image
@@ -70,13 +101,20 @@ def save_image(image, image_name):
     image.save(image_name)
     print(f"\nSaved image to: {image_name}")
 
+
 # Use the functions to run the program
 def main():
-    image_path = input("File path to your image: ")
-    img = conv_2_grayscale(image_path)
-    rgb_code = get_hex_code()
-    new_img = recolor_pixels(img, rgb_code)
-    save_image(new_img, f"recolor-{image_path}")
+    while True:
+        try:
+            image_path = input("File path to your image: ")
+            img = conv_2_grayscale(image_path)
+            rgb_code = get_hex_code()
+            new_img = recolor_pixels(img, rgb_code)
+            save_image(new_img, f"recolor-{image_path}")
+            break
+        except Exception as e:
+            print(f"\nError: {e}\n")
     
+
 if __name__ == "__main__":
     main()

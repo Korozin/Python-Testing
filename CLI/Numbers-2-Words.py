@@ -64,7 +64,7 @@ def _num_to_words_helper(num):
             if num > 0:
                 result += " "
 
-    if result.startswith(("hundred", "thousand", "million", "billion", "trillion", "quintillion", "quadrillion")):
+    if result.startswith(("hundred", "thousand", "million", "billion", "trillion", "quintillion", "quadrillion", "quintillion")):
         result = "one " + result
 
     return result.strip()
